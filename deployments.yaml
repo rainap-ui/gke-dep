@@ -1,0 +1,1198 @@
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "2"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"backend-processor","namespace":"wa"},"spec":{"replicas":3,"selector":{"matchLabels":{"app":"backend-processor"}},"template":{"metadata":{"labels":{"app":"backend-processor"}},"spec":{"containers":[{"image":"nginx:latest","name":"backend-processor-container","ports":[{"containerPort":9000}]}],"nodeSelector":{"critical":"yes","env":"staging","team":"developers"}}}}}
+    creationTimestamp: "2025-03-18T12:14:32Z"
+    generation: 2
+    name: backend-processor
+    namespace: wa
+    resourceVersion: "12472176"
+    uid: 3e63d299-77c9-46fa-b5d9-3be692aa6b5f
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 3
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: backend-processor
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2025-03-18T12:24:20Z"
+        creationTimestamp: null
+        labels:
+          app: backend-processor
+      spec:
+        containers:
+        - image: nginx:latest
+          imagePullPolicy: Always
+          name: backend-processor-container
+          ports:
+          - containerPort: 9000
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          critical: "yes"
+          env: staging
+          team: developers
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 3
+    conditions:
+    - lastTransitionTime: "2025-03-18T12:14:32Z"
+      lastUpdateTime: "2025-03-18T12:24:50Z"
+      message: ReplicaSet "backend-processor-6cf8b64bb" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-03-21T17:49:40Z"
+      lastUpdateTime: "2025-03-21T17:49:40Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 2
+    readyReplicas: 3
+    replicas: 3
+    updatedReplicas: 3
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "15"
+    creationTimestamp: "2025-03-19T11:38:03Z"
+    generation: 15
+    name: high-cpu-utilization
+    namespace: wa
+    resourceVersion: "15750703"
+    uid: 044b6311-b53c-42fa-9446-b6eba5d1285f
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: cpu-utilization-app
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          autoscaling.cast.ai/recommendation-applied-at: "2025-03-24T15:21:26Z"
+          autoscaling.cast.ai/vertical-recommendation-hash: b8679a3dd972c5d5
+        creationTimestamp: null
+        labels:
+          app: cpu-utilization-app
+      spec:
+        containers:
+        - command:
+          - /bin/sh
+          - -c
+          - apt-get update && apt-get install -y stress-ng && while true; do stress-ng
+            --cpu 1; done
+          image: ubuntu
+          imagePullPolicy: Always
+          name: cpu-utilization-container
+          resources:
+            limits:
+              cpu: 50m
+            requests:
+              cpu: 50m
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-03-21T17:48:15Z"
+      lastUpdateTime: "2025-03-21T17:48:15Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2025-03-19T11:38:03Z"
+      lastUpdateTime: "2025-03-24T15:21:28Z"
+      message: ReplicaSet "high-cpu-utilization-d7c5dd785" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 15
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      autoscaling.cast.ai/horizontal-recommendation: "5"
+      autoscaling.cast.ai/previous-replica-field-manager: kubectl-client-side-apply
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"hpa","namespace":"wa"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"hpa"}},"template":{"metadata":{"labels":{"app":"hpa"}},"spec":{"containers":[{"image":"nginx","name":"nginx","resources":{"requests":{"cpu":"100m"}}},{"args":["--cpu","2","--timeout","360000s"],"command":["stress"],"image":"progrium/stress","name":"stress","resources":{"requests":{"cpu":"100m"}}}]}}}}
+    creationTimestamp: "2025-03-21T14:34:50Z"
+    generation: 9
+    name: hpa
+    namespace: wa
+    resourceVersion: "13704307"
+    uid: f1da7aeb-22c6-4d69-86af-4d5183d671b4
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 4
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: hpa
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: hpa
+      spec:
+        containers:
+        - image: nginx
+          imagePullPolicy: Always
+          name: nginx
+          resources:
+            requests:
+              cpu: 100m
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - args:
+          - --cpu
+          - "2"
+          - --timeout
+          - 360000s
+          command:
+          - stress
+          image: progrium/stress
+          imagePullPolicy: Always
+          name: stress
+          resources:
+            requests:
+              cpu: 100m
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 4
+    conditions:
+    - lastTransitionTime: "2025-03-21T14:34:50Z"
+      lastUpdateTime: "2025-03-21T14:34:53Z"
+      message: ReplicaSet "hpa-56db959788" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-03-22T15:58:57Z"
+      lastUpdateTime: "2025-03-22T15:58:57Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 9
+    readyReplicas: 4
+    replicas: 4
+    updatedReplicas: 4
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      autoscaling.cast.ai/horizontal-recommendation: "5"
+      autoscaling.cast.ai/previous-replica-field-manager: kubectl-client-side-apply
+      deployment.kubernetes.io/revision: "2"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"hpa-no-vpa","namespace":"wa"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"hpa-no-vpa"}},"template":{"metadata":{"labels":{"app":"hpa-no-vpa"}},"spec":{"containers":[{"image":"nginx","name":"nginx","resources":{"requests":{"cpu":"100m"}}},{"args":["--cpu","2","--timeout","360000s"],"command":["stress"],"image":"progrium/stress","name":"stress","resources":{"requests":{"cpu":"100m"}}}]}}}}
+    creationTimestamp: "2025-03-21T14:43:07Z"
+    generation: 3
+    labels:
+      k8slens-edit-resource-version: v1
+    name: hpa-no-vpa
+    namespace: wa
+    resourceVersion: "12471768"
+    uid: 2c5ad071-1fcc-4caf-afb1-6ca578c9e73a
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 5
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: hpa-no-vpa
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: hpa-no-vpa
+      spec:
+        containers:
+        - image: nginx
+          imagePullPolicy: Always
+          name: nginx
+          resources:
+            requests:
+              cpu: 100m
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - args:
+          - --cpu
+          - "2"
+          - --timeout
+          - 360000s
+          command:
+          - stress
+          image: progrium/stress
+          imagePullPolicy: Always
+          name: stress
+          resources:
+            requests:
+              cpu: 200m
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 5
+    conditions:
+    - lastTransitionTime: "2025-03-21T14:43:07Z"
+      lastUpdateTime: "2025-03-21T14:59:41Z"
+      message: ReplicaSet "hpa-no-vpa-5d79569864" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-03-21T17:48:28Z"
+      lastUpdateTime: "2025-03-21T17:48:28Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 3
+    readyReplicas: 5
+    replicas: 5
+    updatedReplicas: 5
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"mc-hpa","namespace":"wa"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"mc-hpa"}},"template":{"metadata":{"labels":{"app":"mc-hpa"}},"spec":{"containers":[{"image":"nginx","name":"nginx","resources":{"requests":{"cpu":"100m"}}},{"args":["--cpu","4","--timeout","360000s"],"command":["stress"],"image":"progrium/stress","name":"stress","resources":{"requests":{"cpu":"100m"}}}]}}}}
+    creationTimestamp: "2025-03-21T15:02:40Z"
+    generation: 1
+    name: mc-hpa
+    namespace: wa
+    resourceVersion: "12470223"
+    uid: 505e15e8-5ad9-4b06-a1de-07d29f778892
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: mc-hpa
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: mc-hpa
+      spec:
+        containers:
+        - image: nginx
+          imagePullPolicy: Always
+          name: nginx
+          resources:
+            requests:
+              cpu: 100m
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - args:
+          - --cpu
+          - "4"
+          - --timeout
+          - 360000s
+          command:
+          - stress
+          image: progrium/stress
+          imagePullPolicy: Always
+          name: stress
+          resources:
+            requests:
+              cpu: 100m
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-03-21T15:02:40Z"
+      lastUpdateTime: "2025-03-21T15:02:43Z"
+      message: ReplicaSet "mc-hpa-64798c8df7" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-03-21T17:48:14Z"
+      lastUpdateTime: "2025-03-21T17:48:14Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "5"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"php-apache","namespace":"wa"},"spec":{"selector":{"matchLabels":{"run":"php-apache"}},"template":{"metadata":{"labels":{"run":"php-apache"}},"spec":{"containers":[{"image":"registry.k8s.io/hpa-example","name":"php-apache","ports":[{"containerPort":80}],"resources":{"limits":{"cpu":"500m"},"requests":{"cpu":"200m"}}}]}}}}
+    creationTimestamp: "2025-03-20T08:10:42Z"
+    generation: 14
+    labels:
+      k8slens-edit-resource-version: v1
+    name: php-apache
+    namespace: wa
+    resourceVersion: "10981339"
+    uid: 0a368220-85b4-430e-b0d1-6af4b522b2ad
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        run: php-apache
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2025-03-20T09:36:36Z"
+        creationTimestamp: null
+        labels:
+          run: php-apache
+      spec:
+        containers:
+        - image: registry.k8s.io/hpa-example
+          imagePullPolicy: Always
+          name: php-apache
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 20m
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-03-20T08:21:30Z"
+      lastUpdateTime: "2025-03-20T08:21:30Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2025-03-20T08:10:42Z"
+      lastUpdateTime: "2025-03-20T09:36:49Z"
+      message: ReplicaSet "php-apache-5df5bb68bd" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 14
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "73"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"php-apache-vpa-on","namespace":"wa"},"spec":{"selector":{"matchLabels":{"run":"php-apache-vpa-on"}},"template":{"metadata":{"labels":{"run":"php-apache-vpa-on"}},"spec":{"containers":[{"image":"registry.k8s.io/hpa-example","name":"php-apache-vpa-on","ports":[{"containerPort":80}],"resources":{"limits":{"cpu":"500m"},"requests":{"cpu":"200m"}}}]}}}}
+    creationTimestamp: "2025-03-20T10:23:57Z"
+    generation: 84
+    name: php-apache-vpa-on
+    namespace: wa
+    resourceVersion: "13597564"
+    uid: 16a516fa-1e8c-4950-b595-c7b9b9c364fe
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        run: php-apache-vpa-on
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          autoscaling.cast.ai/recommendation-applied-at: "2025-03-22T17:47:12Z"
+          autoscaling.cast.ai/vertical-recommendation-hash: 94dd135a40b17e84
+        creationTimestamp: null
+        labels:
+          run: php-apache-vpa-on
+      spec:
+        containers:
+        - image: registry.k8s.io/hpa-example
+          imagePullPolicy: Always
+          name: php-apache-vpa-on
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-03-20T11:43:28Z"
+      lastUpdateTime: "2025-03-20T11:43:28Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2025-03-20T10:23:57Z"
+      lastUpdateTime: "2025-03-22T17:47:16Z"
+      message: ReplicaSet "php-apache-vpa-on-698c5b789c" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 84
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "6"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"queue-builder","namespace":"wa"},"spec":{"replicas":3,"selector":{"matchLabels":{"app":"queue-builder"}},"template":{"metadata":{"labels":{"app":"queue-builder"}},"spec":{"containers":[{"image":"nginx:latest","name":"queue-builder-container","ports":[{"containerPort":9000}]}],"nodeSelector":{"critical":"no","env":"staging","team":"developers"}}}}}
+    creationTimestamp: "2025-03-18T12:14:33Z"
+    generation: 6
+    name: queue-builder
+    namespace: wa
+    resourceVersion: "12470352"
+    uid: 33fb7fae-fd14-4f9f-8b5e-6ca4109ef318
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 3
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: queue-builder
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2025-03-19T06:12:47Z"
+        creationTimestamp: null
+        labels:
+          app: queue-builder
+      spec:
+        containers:
+        - image: nginx:latest
+          imagePullPolicy: Always
+          name: queue-builder-container
+          ports:
+          - containerPort: 9000
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          critical: "no"
+          env: staging
+          team: developers
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 3
+    conditions:
+    - lastTransitionTime: "2025-03-19T06:08:02Z"
+      lastUpdateTime: "2025-03-19T06:13:36Z"
+      message: ReplicaSet "queue-builder-d6f5f8456" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-03-21T17:48:16Z"
+      lastUpdateTime: "2025-03-21T17:48:16Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 6
+    readyReplicas: 3
+    replicas: 3
+    updatedReplicas: 3
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "2"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"shopping-cart-app","namespace":"wa"},"spec":{"replicas":5,"selector":{"matchLabels":{"app":"shopping-cart-app"}},"template":{"metadata":{"labels":{"app":"shopping-cart-app"}},"spec":{"containers":[{"image":"nginx:latest","name":"shopping-cart-container","ports":[{"containerPort":8080}]}],"nodeSelector":{"env":"staging","team":"developers"}}}}}
+    creationTimestamp: "2025-03-18T12:14:31Z"
+    generation: 2
+    name: shopping-cart-app
+    namespace: wa
+    resourceVersion: "12472377"
+    uid: 812dd3dd-524e-40db-a992-c27203ee33ea
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 5
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: shopping-cart-app
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2025-03-18T12:24:14Z"
+        creationTimestamp: null
+        labels:
+          app: shopping-cart-app
+      spec:
+        containers:
+        - image: nginx:latest
+          imagePullPolicy: Always
+          name: shopping-cart-container
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          env: staging
+          team: developers
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 5
+    conditions:
+    - lastTransitionTime: "2025-03-18T12:14:31Z"
+      lastUpdateTime: "2025-03-18T12:24:32Z"
+      message: ReplicaSet "shopping-cart-app-7c74dc66b" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-03-21T17:49:45Z"
+      lastUpdateTime: "2025-03-21T17:49:45Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 2
+    readyReplicas: 5
+    replicas: 5
+    updatedReplicas: 5
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "27"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"stress-nginx","namespace":"wa"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"stress-nginx"}},"template":{"metadata":{"labels":{"app":"stress-nginx"}},"spec":{"containers":[{"image":"nginx","name":"nginx","resources":{"limits":{"cpu":"500m"},"requests":{"cpu":"100m"}}},{"args":["--cpu","1","--timeout","300s"],"command":["stress"],"image":"polinux/stress","name":"stress"}]}}}}
+    creationTimestamp: "2025-03-17T14:45:21Z"
+    generation: 33
+    labels:
+      k8slens-edit-resource-version: v1
+    name: stress-nginx
+    namespace: wa
+    resourceVersion: "12472470"
+    uid: 6ff87917-e428-44c0-a14a-1b23aa2dba88
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: stress-nginx
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2025-03-17T17:57:35Z"
+        creationTimestamp: null
+        labels:
+          app: stress-nginx
+      spec:
+        containers:
+        - image: nginx
+          imagePullPolicy: Always
+          name: nginx
+          resources:
+            limits:
+              cpu: 50m
+            requests:
+              cpu: 10m
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - args:
+          - --cpu
+          - "1"
+          command:
+          - stress
+          image: polinux/stress
+          imagePullPolicy: Always
+          name: stress
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2025-03-17T14:45:21Z"
+      lastUpdateTime: "2025-03-17T18:18:25Z"
+      message: ReplicaSet "stress-nginx-9cb46bfdf" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-03-21T17:49:58Z"
+      lastUpdateTime: "2025-03-21T17:49:58Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 33
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      autoscaling.cast.ai/horizontal-recommendation: "1"
+      autoscaling.cast.ai/previous-replica-field-manager: vpa-recommender
+      deployment.kubernetes.io/revision: "5"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"stress-nginx-test","namespace":"wa"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"stress-nginx-test"}},"template":{"metadata":{"labels":{"app":"stress-nginx-test"}},"spec":{"containers":[{"image":"nginx","name":"nginx","resources":{"limits":{"cpu":"500m"},"requests":{"cpu":"100m"}}},{"args":["--cpu","1","--timeout","300s"],"command":["stress"],"image":"polinux/stress","name":"stress"}]}}}}
+    creationTimestamp: "2025-03-17T16:44:53Z"
+    generation: 12
+    labels:
+      k8slens-edit-resource-version: v1
+    name: stress-nginx-test
+    namespace: wa
+    resourceVersion: "12472475"
+    uid: 63ee4bf3-ea73-40d8-abb7-0360f5a8d2c2
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: stress-nginx-test
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2025-03-17T16:55:33Z"
+        creationTimestamp: null
+        labels:
+          app: stress-nginx-test
+      spec:
+        containers:
+        - image: nginx
+          imagePullPolicy: Always
+          name: nginx
+          resources:
+            limits:
+              cpu: 50m
+            requests:
+              cpu: 10m
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - args:
+          - --cpu
+          - "5"
+          command:
+          - stress
+          image: polinux/stress
+          imagePullPolicy: Always
+          name: stress
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-03-17T16:44:53Z"
+      lastUpdateTime: "2025-03-17T16:58:01Z"
+      message: ReplicaSet "stress-nginx-test-64fb6495cf" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-03-21T17:49:58Z"
+      lastUpdateTime: "2025-03-21T17:49:58Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 12
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "5"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"sync-api","namespace":"wa"},"spec":{"replicas":10,"selector":{"matchLabels":{"app":"sync-api"}},"template":{"metadata":{"labels":{"app":"sync-api"}},"spec":{"containers":[{"image":"nginx:latest","name":"sync-api-container","ports":[{"containerPort":8080}]}],"nodeSelector":{"env":"staging"}}}}}
+    creationTimestamp: "2025-03-18T12:14:30Z"
+    generation: 5
+    name: sync-api
+    namespace: wa
+    resourceVersion: "12470697"
+    uid: ace1505f-5839-41f0-b77d-02e64311411e
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 10
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: sync-api
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2025-03-19T06:13:38Z"
+        creationTimestamp: null
+        labels:
+          app: sync-api
+      spec:
+        containers:
+        - image: nginx:latest
+          imagePullPolicy: Always
+          name: sync-api-container
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          env: staging
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 10
+    conditions:
+    - lastTransitionTime: "2025-03-19T06:08:15Z"
+      lastUpdateTime: "2025-03-19T06:13:45Z"
+      message: ReplicaSet "sync-api-7467679668" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-03-21T17:48:22Z"
+      lastUpdateTime: "2025-03-21T17:48:22Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 5
+    readyReplicas: 10
+    replicas: 10
+    updatedReplicas: 10
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "2"
+      workloads.cast.ai/configuration: |
+        scalingPolicyName: default
+        vertical:
+          optimization: on
+          applyType: immediate
+    creationTimestamp: "2025-03-12T19:09:41Z"
+    generation: 4
+    labels:
+      app: vpa-flask
+      k8slens-edit-resource-version: v1
+    name: vpa-deployment-flask
+    namespace: wa
+    resourceVersion: "12473276"
+    uid: 1e0eebe7-89bf-4ec5-b21c-d3b2d6bd05cc
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: vpa-flask
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          autoscaling.cast.ai/recommendation-applied-at: "2025-03-12T19:16:38Z"
+          autoscaling.cast.ai/vertical-recommendation-hash: 3e6769268309f27e
+        creationTimestamp: null
+        labels:
+          app: vpa-flask
+      spec:
+        containers:
+        - image: tiangolo/uwsgi-nginx-flask:python3.8
+          imagePullPolicy: IfNotPresent
+          name: vpa-flask
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources:
+            limits:
+              cpu: "2"
+              memory: 3Gi
+            requests:
+              cpu: "1"
+              memory: 1536Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-03-12T19:09:41Z"
+      lastUpdateTime: "2025-03-12T19:17:03Z"
+      message: ReplicaSet "vpa-deployment-flask-7497b897f7" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-03-21T17:50:54Z"
+      lastUpdateTime: "2025-03-21T17:50:54Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 4
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      autoscaling.cast.ai/horizontal-recommendation: "1"
+      autoscaling.cast.ai/previous-replica-field-manager: kubectl-create
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2025-03-12T18:14:40Z"
+    generation: 2
+    labels:
+      app: vpa-test
+    name: vpa-test
+    namespace: wa
+    resourceVersion: "12470983"
+    uid: 2fac9bd6-7a05-4bf2-95de-a16448691f90
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: vpa-test
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: vpa-test
+      spec:
+        containers:
+        - image: nginx
+          imagePullPolicy: Always
+          name: vpa-test
+          resources:
+            limits:
+              cpu: 1500m
+              memory: 2Gi
+            requests:
+              cpu: 800m
+              memory: 1Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-03-12T18:14:40Z"
+      lastUpdateTime: "2025-03-12T18:15:19Z"
+      message: ReplicaSet "vpa-test-6544f875cd" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-03-21T17:48:34Z"
+      lastUpdateTime: "2025-03-21T17:48:34Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2025-03-13T07:22:06Z"
+    generation: 1
+    labels:
+      app: vpa-test2
+    name: vpa-test2
+    namespace: wa
+    resourceVersion: "12471713"
+    uid: 61ba81f0-14be-46aa-9bda-7da2e08a434f
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 5
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: vpa-test2
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: vpa-test2
+      spec:
+        containers:
+        - image: nginx
+          imagePullPolicy: Always
+          name: vpa-test2
+          resources:
+            limits:
+              cpu: 1500m
+              memory: 2Gi
+            requests:
+              cpu: 800m
+              memory: 1Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 5
+    conditions:
+    - lastTransitionTime: "2025-03-13T07:22:06Z"
+      lastUpdateTime: "2025-03-13T07:23:06Z"
+      message: ReplicaSet "vpa-test2-75ffb7c948" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-03-21T17:49:10Z"
+      lastUpdateTime: "2025-03-21T17:49:10Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 5
+    replicas: 5
+    updatedReplicas: 5
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "2"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"web-app","namespace":"wa"},"spec":{"replicas":3,"selector":{"matchLabels":{"app":"web-app"}},"template":{"metadata":{"labels":{"app":"web-app"}},"spec":{"containers":[{"image":"nginx:latest","name":"web-container","ports":[{"containerPort":80}]}],"nodeSelector":{"critical":"yes","team":"developers"}}}}}
+    creationTimestamp: "2025-03-18T12:14:30Z"
+    generation: 2
+    name: web-app
+    namespace: wa
+    resourceVersion: "12472393"
+    uid: e80ebbab-9d99-49c7-8759-dd90fe19974b
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 3
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: web-app
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2025-03-18T12:24:17Z"
+        creationTimestamp: null
+        labels:
+          app: web-app
+      spec:
+        containers:
+        - image: nginx:latest
+          imagePullPolicy: Always
+          name: web-container
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          critical: "yes"
+          team: developers
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 3
+    conditions:
+    - lastTransitionTime: "2025-03-18T12:14:30Z"
+      lastUpdateTime: "2025-03-18T12:24:36Z"
+      message: ReplicaSet "web-app-7ddb9445f" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2025-03-21T17:49:53Z"
+      lastUpdateTime: "2025-03-21T17:49:53Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 2
+    readyReplicas: 3
+    replicas: 3
+    updatedReplicas: 3
+kind: List
+metadata:
+  resourceVersion: ""
